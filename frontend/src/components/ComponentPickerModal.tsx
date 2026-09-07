@@ -294,6 +294,11 @@ export const ComponentPickerModal: React.FC<ComponentPickerModalProps> = ({
     components = components.filter((c) => !UNSIMULATED_BOARD_SHELLS.has(c.id));
     components = components.filter((c) => !GESTURE_ONLY_COMPONENTS.has(c.id));
 
+    // Strict OSS build: remove components explicitly marked pro_only.
+    if (import.meta.env.VITE_OSS_BUILD) {
+      components = components.filter((c) => !c.pro_only);
+    }
+
     // Maker-first ordering: most users reach for a sensor, an LED or a
     // display far more often than a bare transistor or a 74HC gate, so
     // passives / analog / logic sink to the end. Array.sort is stable —
@@ -309,7 +314,13 @@ export const ComponentPickerModal: React.FC<ComponentPickerModalProps> = ({
 
   // Boards list: static OSS kinds + overlay-registered boards (proBoardRegistry).
   const allBoards = useMemo(() => {
-    return [...ALL_BOARDS, ...(listProBoards().map((d) => d.kind) as BoardKind[])];
+    const boards = [...ALL_BOARDS, ...(listProBoards().map((d) => d.kind) as BoardKind[])];
+
+    // Strict OSS build: do not expose Pro-only boards.
+    return import.meta.env.VITE_OSS_BUILD
+      ? boards.filter((kind) => !isProBoardKind(kind))
+      : boards;
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [proBoardsVersion]);
 

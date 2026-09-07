@@ -331,7 +331,21 @@ export const NewProjectDialog: React.FC<NewProjectDialogProps> = ({ isOpen, onCl
   );
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const sections = useMemo(() => buildStarterSections(listProBoards()), [proBoardsVersion]);
+  const sections = useMemo(() => {
+    const built = buildStarterSections(listProBoards());
+
+    if (!import.meta.env.VITE_OSS_BUILD) {
+      return built;
+    }
+
+    // Strict OSS build: remove all Pro-only boards from New Workspace.
+    return built
+      .map((section) => ({
+        ...section,
+        entries: section.entries.filter(({ kind }) => !isProBoardKind(kind)),
+      }))
+      .filter((section) => section.entries.length > 0);
+  }, [proBoardsVersion]);
 
   useEffect(() => {
     if (!isOpen) return;

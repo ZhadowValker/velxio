@@ -163,20 +163,22 @@ export const EditorMenuBar: React.FC = () => {
   // dropdown gets these from its own (pro) markup; this menubar only ever
   // hosted the shared `user-menu` slot, which is why the editor's Account
   // menu had no way in or out of a session.
-  const accountItems: Item[] = [
-    {
-      kind: 'command',
-      id: 'account.myProjects',
-      label: t('header.auth.myProjects', 'My projects'),
-      optional: true,
-    },
-    {
-      kind: 'command',
-      id: 'account.login',
-      label: t('header.auth.signIn', 'Sign in'),
-      optional: true,
-    },
-  ];
+  const accountItems: Item[] = import.meta.env.VITE_OSS_BUILD
+    ? []
+    : [
+        {
+          kind: 'command',
+          id: 'account.myProjects',
+          label: t('header.auth.myProjects', 'My projects'),
+          optional: true,
+        },
+        {
+          kind: 'command',
+          id: 'account.login',
+          label: t('header.auth.signIn', 'Sign in'),
+          optional: true,
+        },
+      ];
 
   const helpItems: Item[] = [
     // Only present once a post has been delivered — the announcement is a
@@ -469,7 +471,13 @@ export const EditorMenuBar: React.FC = () => {
 
   return (
     <div className="editor-menubar" ref={rootRef}>
-      {menu('file', t('editor.menu.file', 'File'), fileItems)}
+      {menu(
+        'file',
+        t('editor.menu.file', 'File'),
+        import.meta.env.VITE_OSS_BUILD
+          ? fileItems.filter((item) => !('pro' in item && item.pro))
+          : fileItems,
+      )}
       {menu('edit', t('editor.menu.edit', 'Edit'), editItems)}
       {menu('view', t('editor.menu.view', 'View'), viewItems)}
       {menu('account', t('editor.menu.account', 'Account'), [])}

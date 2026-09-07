@@ -1,0 +1,32 @@
+services:
+
+  velxio-oss:
+
+    build:
+      context: .
+      dockerfile: Dockerfile.oss
+
+      args:
+        VELXIO_LICENSE_KEY: ""
+
+    container_name: velxio-oss
+
+    restart: unless-stopped
+
+    ports:
+      - "3080:80"
+
+    environment:
+      VITE_PRO_BUILD: ""
+      PRO_OVERLAY_PATH: ""
+      ENABLE_PRO: ""
+      VELXIO_INSTALL_STM32: ""
+      VELXIO_LICENSE_KEY: ""
+
+    volumes:
+      - velxio-oss-build:/app/build
+      - velxio-oss-ccache:/root/.cache/ccache
+
+volumes:
+  velxio-oss-build:
+  velxio-oss-ccache:
